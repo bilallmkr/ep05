@@ -214,14 +214,14 @@ other for application client.
 corner
 
 ____
-image:media/media/image1.png[image,width=602,height=259]
+image:images/image1.png[image,width=602,height=259]
 ____
 
 [arabic, start=5]
 . Now give the *Client ID* for your application name and click on *Save*
 button.
 
-image:media/media/image2.png[image,width=503,height=199]
+image:images/image2.png[image,width=503,height=199]
 
 [arabic, start=6]
 . Add the IP Address and FQDN of the machine where the DSADX application
@@ -229,7 +229,7 @@ is going to be deployed in the Valid Redirect URIs.
 . Enter astrick (*) in web origins.
 
 ____
-image:media/media/image3.png[image,width=397,height=420]
+image:images/image3.png[image,width=397,height=420]
 ____
 
 [arabic, start=8]
@@ -237,7 +237,7 @@ ____
 (case sensitive) as below.
 
 ____
-image:media/media/image4.png[image,width=624,height=106]
+image:images/image4.png[image,width=624,height=106]
 ____
 
 *Download Configuration File*
@@ -245,7 +245,7 @@ ____
 [arabic]
 . Navigate to *Installation* tab.
 
-image:media/media/image5.png[image,width=532,height=202]
+image:images/image5.png[image,width=532,height=202]
 
 [arabic, start=2]
 . Select *Keycloak OIDC JSON* from the drop down and click on
@@ -264,20 +264,20 @@ ____
 . In the left navigation menu click on *Users*.
 
 ____
-image:media/media/image6.PNG[image,width=184,height=411]
+image:images/image6.PNG[image,width=184,height=411]
 ____
 
 [arabic, start=3]
 . Click on *Add User* in the top right corner and Fill in the required
 attributes as shown.
 
-image:media/media/image7.PNG[image,width=441,height=310]
+image:images/image7.PNG[image,width=441,height=310]
 
 [arabic, start=4]
 . Set password in the *Credentials* tab after turn off the *Temporary*
 password checkbox.
 
-image:media/media/image8.png[image,width=504,height=239]
+image:images/image8.png[image,width=504,height=239]
 
 ==== Add Roles for User
 
@@ -285,7 +285,7 @@ image:media/media/image8.png[image,width=504,height=239]
 . Switch to Role Mappings Tab in the top navigation menu.
 . From the Available Roles in Realm Roles add “dsis-admins” and
 “DSADXAdmin” Client Roles.
-image:media/media/image9.png[image,width=584,height=247]
+image:images/image9.png[image,width=584,height=247]
 
 Non-administrator users will have the “dsis-admin” relam role and
 “DSADXUser” client roles assigned to use the DSADX application.
@@ -312,7 +312,7 @@ directory**.**
 . Add above copied app entries to this file as highlighted below and
 save.
 
-image:media/media/image10.png[image,width=546,height=411]
+image:images/image10.png[image,width=546,height=411]
 
 [arabic, start=5]
 . Update the all the `@*wfwservices_deployment_dir*@` values with the
@@ -337,7 +337,7 @@ save.
 and open.
 
 ____
-image:media/media/image11.png[image,width=327,height=500]
+image:images/image11.png[image,width=327,height=500]
 ____
 
 Also update below entries in the config.json file.
@@ -389,7 +389,7 @@ ____
 . Update keycloak realm name and url as below.
 
 ____
-image:media/media/image12.png[image,width=455,height=78]
+image:images/image12.png[image,width=455,height=78]
 
 Note: make sure no slash (/) at the end of the auth-server-url.
 ____
@@ -407,7 +407,7 @@ ____
 {empty}2. Add your keycloak application client name at “base href” as
 below.
 
-image:media/media/image13.png[image,width=328,height=118]
+image:images/image13.png[image,width=328,height=118]
 
 === DSIS Configuration Service
 
@@ -514,7 +514,7 @@ Cd /Landmark/apps/dsadx
 $ node scripts-exec.js encrypt <plainText>
 ....
 
-image:media/media/image15.png[image,width=624,height=80]
+image:images/image15.png[image,width=624,height=80]
 
 ==== Set Credentials
 
@@ -746,7 +746,7 @@ PM2 service installed and started.
 This will create a Windows Service called PM2.
 ....
 
-image:media/media/image17.png[pm2 service,width=560,height=300]
+image:images/image17.png[pm2 service,width=560,height=300]
 
 ....
 If incase service PM2 is not in running state, change the Startup type to Automatic and click on Start.
@@ -789,7 +789,7 @@ ____
 pm2 save
 ____
 
-image:media/media/image18.png[pm2 start LINUX,width=560,height=175]
+image:images/image18.png[pm2 start LINUX,width=560,height=175]
 
 ===== Running PM2 as a service
 
@@ -802,7 +802,7 @@ sudo env PATH=$PATH:<directory location upto binaries(executables) from your nod
 Example:- sudo env PATH=$PATH:/Landmark/apps/nodejs/node-v6.10.3-linux-x64/bin/ /Landmark/apps/nodejs/node-v6.10.3-linux-x64/lib/node_modules/pm2/bin/pm2 startup systemv -u svcwf --hp /home/svcwf
 ....
 
-image:media/media/image19.png[pm2 service Linux,width=560,height=371]
+image:images/image19.png[pm2 service Linux,width=560,height=371]
 
 ===  +
 Install and Configure NGINX
@@ -2000,7 +2000,7 @@ should be able to see a screen like below.
 Make sure that you do not have any CORS plugin installed. If so, please
 disable it before you browse to the application.
 
-image:media/media/image20.png[image,width=624,height=235]
+image:images/image20.png[image,width=624,height=235]
 
 === Enabling SSL (https) for Application
 
@@ -2075,7 +2075,7 @@ the variable value would be D:\certificates\dsadx.p12.
 link:#encrypt-credentials[Encrypt Credentials] for encrypting this key.
 
 ____
-image:media/media/image21.png[add environment var
+image:images/image21.png[add environment var
 key,width=393,height=439]
 ____
 
@@ -2824,7 +2824,7 @@ a|
 
 |===
 
-* image:media/media/image22.png[set timeout token,width=617,height=524]
+* image:images/image22.png[set timeout token,width=617,height=524]
 
 ==== Creating Self-Signed SSL Certificate for Nginx
 
