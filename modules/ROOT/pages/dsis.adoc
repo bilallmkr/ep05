@@ -1,0 +1,2933 @@
+*© 2021 Halliburton*
+
+*All Rights Reserved Worldwide*
+
+This publication has been provided pursuant to an agreement containing
+restrictions on its use. The publication is also protected by Federal
+copyright law. No part of this publication may be copied or distributed,
+transmitted, transcribed, stored in a retrieval system, or translated
+into any human or [abstract]computer language, in any form or by any
+means, electronic, magnetic, manual, or otherwise, or disclosed to third
+parties without the express written permission of:
+
+*Halliburton | Landmark Software & Solutions* +
+3000 North Sam Houston Parkway East, Houston, Texas 77032-3219, USA +
+P.O. Box 60087, Houston, Texas 77205-0087 +
+*Phone*: 713-839-2000 +
+*Fax*: 713-839-2401 +
+*Web*: www.hallibruton.com/landmark
+
+The information contained in this document is subject to change without
+notice and should not be construed as a commitment by Halliburton.
+Halliburton assumes no responsibility for any error that may appear in
+this manual. Some states or jurisdictions do not allow disclaimer of
+expressed or implied warranties in certain transactions; therefore, this
+statement may not apply to you.
+
+*Third Party Licenses and Attributions*
+
+Halliburton acknowledges that certain third party code has been bundled
+with, or embedded in, its software. The licensors of this third party
+code, and the terms and conditions of their respective licenses, may be
+found at the following location:
+
+....
+[Installdir] \ThirdParty\<<Third_Party_Tool>>\documentation.doc
+....
+
+*Disclaimer*
+
+The programs and documentation may provide links to external web sites
+and access to content, products, and services from third parties.
+Halliburton is not responsible for the availability of, or any content
+provided on, third party web sites. You bear all risks associated with
+the use of such content. If you choose to purchase any products or
+services from a third party, the relationship is directly between you
+and the third party. Halliburton is not responsible for: (a) the quality
+of third party products or services; or (b) fulfilling any of the terms
+of the agreement with the third party, including delivery of products or
+services and warranty obligations related to purchased products or
+services. Halliburton is not responsible for any loss or damage of any
+sort that you may incur from dealing with any third party.
+
+*Last updated 2021-10-18*
+
+== DSADX Application Installation
+
+=== Scope
+
+This document provides the steps required for setting up Decision Space
+Application Data Exchange (DSADX) Application.
+
+*+++Note+++* – If you have installed an application
+(AdminApp/DSDQ/GettingStarted) in the machine already, then go to
+link:#share-services-across-multiple-applications[share services across
+multiple applications] section to share the existing web framework
+services with DSADX application that you are going to install.
+Otherwise, skip this note.
+
+=== Prerequisites
+
+[arabic]
+. https://nodejs.org/en/download/[Node.js® 14.17.1] or latest.
+
+____
+npm 6.14.2 or latest
+____
+
+[arabic, start=2]
+. https://cli.angular.io/[Angular CLI 10.0.0]
+. Working DS Security Server and DSIS Configuration Server (version
+10ep.4.05)
+
+==== Install node
+
+[arabic]
+. Create a directory where you wish to install node.
+
+____
+mkdir /Landmark/apps/nodejs
+____
+
+[arabic, start=2]
+. Fetch the node installer
+
+Linux:
+
+* wget
+https://nodejs.org/download/release/v14.17.0/node-v14.17.0-linux-x64.tar.gz
+
+Windows
+
+* https://nodejs.org/download/release/v14.17.0/node-v14.17.0-x64.msi
+(use msi only)
+
+[arabic, start=3]
+. Now extract the binaries using the following command.
+
+For Linux: tar –C <myfolder> -xzf <tar file firectory path>
+
+For example : tar -C
+/Landmark/apps/nodejs/node-v14.17.0-linux-x64.tar.gz
+
+*For Windows:* Run node-v14.17.0.1-x64.msi as an administrator
+
+[arabic, start=4]
+. Set PATH
+
+____
+*_For Linux_*: export
+PATH=$PATH/Landmark/apps/nodejs/node-v14.17.0-linux-x64/bin/
+
+*_For Windows_*: add the node installed directory to PATH environment
+variable PATH=C:\Landmark\apps\nodejs
+____
+
+{empty}5. Run the following commands to see the version of node
+installed successfully
+
+$ npm -v
+
+6.14.13
+
+node –v
+
+14.17.0
+
+*Setting Node Proxy:*
+
+If your network is behind a corporate proxy, create a file as “.npmrc”
+in your user directory location (C:\Users\User) and add the below
+entries.
+
+____
+registry=https://registry.npmjs.org/
+
+#_auth=userid:password
+
+#email=youremailaddress@y.com
+
+#always-auth=true
+
+http-proxy=http://userid:password@proxymachine:port(default is 80)
+
+https-proxy= http://userid:password@proxymachine:port(default is 80)
+____
+
+=== Check for existing deployments
+
+*NOTE*: If you are installing the application for the first time you can
+skip this section.
+
+The existing application needs to be removed to install a new one.
+Follow the below steps to remove the existing installation.
+
+[arabic]
+. Stop all running application processes.
+
+____
+pm2 stop all
+____
+
+[arabic, start=2]
+. Now remove delete all the existing source code of the application
+
+____
+For Linux you can use the following command
+
+sudo rm -rf <path_of_existing deployment>
+____
+
+*Note*: If you are not sure about the existing deployment path, see the
+value of the environment variable “SHARED_CONFIGURATION”.
+
+=== Extract Files
+
+Get the tar files listed below from Landmark Package to start deploying
+DSADX Application.
+
+* Application SPA Disctribution: *dsadx*.tar
+* Application Services: *dsadx-services*.tar
+* Web Framework-Services: **web-framework-services.**tar
+
+Extract all the above tar files into different directories.
+
+eg: /Landmark/apps/web-framework-services, /Landmark/apps/dsadx-services
+and /Landmark/apps/dsadx.
+
+*Note*: The path where the application is installed will be referred to
+as *\{Installation_Dir}* throughout this document.
+
+=== Configure DS SECURITY (Keycloak)
+
+DSADX requires two keycloak clients, one is for application services and
+other for application client.
+
+==== Create Client for Application
+
+[arabic]
+. Browse to *DSSECURITY* admin console.
+. From the left menu select the realm
+*DecisionSpace_Integration_Server*, if not already selected.
+. From the left navigation menu, select *Clients*.
+. Create a client by clicking on the *Create* button on the top right
+corner
+
+____
+image:media/media/image1.png[image,width=602,height=259]
+____
+
+[arabic, start=5]
+. Now give the *Client ID* for your application name and click on *Save*
+button.
+
+image:media/media/image2.png[image,width=503,height=199]
+
+[arabic, start=6]
+. Add the IP Address and FQDN of the machine where the DSADX application
+is going to be deployed in the Valid Redirect URIs.
+. Enter astrick (*) in web origins.
+
+____
+image:media/media/image3.png[image,width=397,height=420]
+____
+
+[arabic, start=8]
+. Navigate to Role tab and add 2 roles - “DSADXAdmin” and “DSADXUser”
+(case sensitive) as below.
+
+____
+image:media/media/image4.png[image,width=624,height=106]
+____
+
+*Download Configuration File*
+
+[arabic]
+. Navigate to *Installation* tab.
+
+image:media/media/image5.png[image,width=532,height=202]
+
+[arabic, start=2]
+. Select *Keycloak OIDC JSON* from the drop down and click on
+*download*.
+. Take this downloaded keycloak.json file and copy into the below
+folder.
+
+____
+Eg: /Landmark/apps/dsadx/apps/dashboard/
+____
+
+==== Create User Service Account
+
+[arabic]
+. Connect to Keycloak admin console.
+. In the left navigation menu click on *Users*.
+
+____
+image:media/media/image6.PNG[image,width=184,height=411]
+____
+
+[arabic, start=3]
+. Click on *Add User* in the top right corner and Fill in the required
+attributes as shown.
+
+image:media/media/image7.PNG[image,width=441,height=310]
+
+[arabic, start=4]
+. Set password in the *Credentials* tab after turn off the *Temporary*
+password checkbox.
+
+image:media/media/image8.png[image,width=504,height=239]
+
+==== Add Roles for User
+
+[arabic]
+. Switch to Role Mappings Tab in the top navigation menu.
+. From the Available Roles in Realm Roles add “dsis-admins” and
+“DSADXAdmin” Client Roles.
+image:media/media/image9.png[image,width=584,height=247]
+
+Non-administrator users will have the “dsis-admin” relam role and
+“DSADXUser” client roles assigned to use the DSADX application.
+
+=== Configure Application
+
+[arabic]
+. Create an environment variable with key as `**SHARED_CONFIGURATION**`
+and value as `$\{*path_of_app_configurations*}`. For instance if path is
+`**/Landmark/apps/app_configurations**` the environment variable value
+would be `**/Landmark/apps/app_configurations** `.
+. Close all VSCode windows and reopen, if any.
+. Navigate to `**configurations**` folder in *web-framework-services*
+directory**.**
+. Copy the config.json, keycloak.json and pm2.json files to the
+`**app_configurations**` folder.
+
+==== Update pm2.json
+
+[arabic]
+. Open pm2.json file from /Landmark/apps/dsadx-services/configurations/
+. Copy all the 4 app entries under the apps.
+. Now open the pm2.json file from `/Landmark/app/**app_configurations**`
+. Add above copied app entries to this file as highlighted below and
+save.
+
+image:media/media/image10.png[image,width=546,height=411]
+
+[arabic, start=5]
+. Update the all the `@*wfwservices_deployment_dir*@` values with the
+directory where the *webframework-services* are being deployed.
+. Update the all the `@*dsadx_services_deployment_dir*@` values with the
+directory where the *dsadx-services* are being deployed.
+
+*Note*: Make sure directory path has forward slash in case of windows
+environment.
+
+==== Update Config.json
+
+== Open config.json file from /Landmark/apps/dsadx-services/configurations/ 
+
+[arabic]
+. Copy all the 4 service name entries under the service configurations.
+. Now open the config..json file from
+`/Landmark/app/**app_configurations**`
+. Add above copied service entries to this file as highlighted below and
+save.
+. Modify the port numbers if required, to make sure the ports are unique
+and open.
+
+____
+image:media/media/image11.png[image,width=327,height=500]
+____
+
+Also update below entries in the config.json file.
+
+* `ServiceRoute`: Under service name app-host, add your application
+client name (eg: “serviceRoute”: “/dsadx*”)
+** {blank}
++
+____
+`distpath`; Under service name app-host, replace @spa_dist_dir@ with the
+path of enterprise search spa folder path with forward slash (eg:
+C:/Landmark/apps/dsadx/apps/dashboard).
+____
+** {blank}
++
+____
+`dsisconfig`; Under service name config data, replace url with your DSIS
+Configuration Server url as below.
+____
+
+____
+Eg: http://DSISConfigServer:8080/dsis-config/api/v1
+____
+
+* {blank}
++
+____
+`routerPort`: Port to be used by the application. Update all occurrences
+of `@router_port@`. (default port – 9090)
+____
+* {blank}
++
+____
+`routerIP`: Internal IPv4 of workspace where the services are
+hosted.Update all occurrences of `@router_ip@`.
+____
+* {blank}
++
+____
+`defaultLogsPath`: Path where you want to store logs. Make sure the
+folder exists. Eg: C:/Landmark/apps/log/default_logs (with forward
+slash)
+____
+
+=== Update Keycloak.json
+
+[arabic]
+. Open the keycloak.json file from `**app_configurations**`
+. Update keycloak realm name and url as below.
+
+____
+image:media/media/image12.png[image,width=455,height=78]
+
+Note: make sure no slash (/) at the end of the auth-server-url.
+____
+
+=== Update Index.html file
+
+[arabic]
+. Go to your extracted spa folder (eg:
+/Landmark/apps/dsadx/apps/dashboard)
+
+____
+and open index.html file.
+____
+
+{empty}2. Add your keycloak application client name at “base href” as
+below.
+
+image:media/media/image13.png[image,width=328,height=118]
+
+=== DSIS Configuration Service
+
+These scripts will update/create the application with the name same as
+the keycloak resource/client-id. Make sure you are using the correct npm
+registry.
+
+==== Configure .wfrc file
+
+....
+Go to extracted spa folder (/Landmark/apps/dsadx) and update details. 
+{
+    "dsisConfigUrl":"<hostname>:<port>/dsis-config/api/v1/applications",
+    "keycloakConfig":{
+        <Content_of_Keycloak.json>
+    },
+  "emailServiceConfig": {
+    "host": "whsmtp.corp.halliburton.com",
+    "port": "25",
+    "isProtected": false,
+    "userName": "AKIAJZVSBK3UCWQZVNHQ",
+    "password": "Ag2YgykzL42jKHy1WimBUoemYdbs2VcxLPCw0/2VD3SA",
+    "customLoggerEnabled": false,
+    "exceptionLoggerEnabled": true,
+    "landmarkssservice": "/lea/landmarkssservice"
+  },
+  "supportAssistantConfig": {
+    "supportassistantserviceUrl": "/supportassistantservice/",
+    "emailServiceURL": "/emailservice/",
+    "defaultToEmailAddress": "supportassistant@halliburton.com",
+    "defaultFromEmailAddress": "supportassistant@halliburton.com",
+    "customLoggerEnabled": false,
+    "customerSupportLiveChatURL": "https://www.ienergy.community/Chat",
+    "customerSupportPortalURL": "https://www.ienergy.community/Support",
+    "createCaseURL": "http://css.lgc.com/psp/crmp/CUSTOMER/CRM/c/RC_SELF_SERVICE.RC_CASE_SW_SS_RPT.GBL?PAGE=RC_CASE_SW_SS_RPT&BUSINESS_UNIT=LGC01&DISP_TMPL_ID=RC_SUPPORT",
+    "showDownloadButton": true
+  },
+    "deleteApplication":false,
+    "importPath":"<path_to_configurations_to_be_imported>",
+    "exportPath":"<path_to_directory_where_configurations_to_be_exported>"
+}
+....
+
+[width="100%",cols="26%,13%,61%",options="header",]
+|===
+|Property |Description |
+|`dsisConfigUrl` |This will be url to your dsis config service in the
+format |
+
+|`keycloakConfig` |Content of the `keycloak.json` file of application
+client. |
+
+|`deleteApplication` |`true` |Keep it false if you do not want to delete
+existing application with same name.
+
+|`importPath` |`"./``data"` |Local Path from where the configurations
+would be imported to DSIS config service.
+
+|`exportPath` |`"./``PATH"` |Local path where the configurations from
+Dsis config service would be exported to.
+|===
+
+==== CRYPTO_KEY
+
+===== Create Key
+
+This key will be used for encryption/decryption of texts you can store
+directly for any configurations. Follow below steps to create the key.
+
+Open new commnd prompt window.
+
+Cd /Landmark/apps/dsadx
+
+....
+$ node scripts-exec.js create-crypto-key –-username <keycloakadminuser> --p <keycloakpassword>
+....
+
+===== Set CRYPTO_KEY
+
+Now create an environment variable called `CRYPTO_KEY` with value as the
+key obtained in above step.
+
+Linux.
+
+....
+$ export CRYPTO_KEY=<encrypted text>
+....
+
+Windows.
+
+....
+> set CRYPTO_KEY= <encrypted text>
+....
+
+===== Encrypt Credentials
+
+Run the following for encrypting password/text.
+
+Open new commnd prompt window.
+
+Cd /Landmark/apps/dsadx
+
+....
+$ node scripts-exec.js encrypt <plainText>
+....
+
+image:media/media/image15.png[image,width=624,height=80]
+
+==== Set Credentials
+
+Create two environment variables with keys as `KEYCLOAK_USER` &
+`KEYCLOAK_PASSWORD` with values as username and password (encrypted) for
+your keycloak server. Make sure that the user have all required rights
+to create users in keycloak and READ/WRITE permissions for dsis config
+plugin.
+
+Linux.
+
+....
+$ export KEYCLOAK_USER=myusername
+$ export KEYCLOAK_PASSWORD=<encrypted password>
+....
+
+Windows.
+
+....
+> set KEYCLOAK_USER=myusername
+> set KEYCLOAK_PASSWORD=<encrypted password>
+....
+
+==== Service Registry Configurations
+
+Follow the steps to update the service registry configuration.
+
+[arabic]
+. Go to
+/Landmark/apps/dsadx/data/application/serviceRegistryConfigurations
+folder.
+. Open serviceRegistryConfig1.json and update connectionURL, user name
+and credentials for KeycloakService.
+
+* {blank}
++
+....
+ [
+    {
+        "ServiceName": "KeyCloakService",
+        "ConnectionURL": "http://<keycloak-server>:<port>/",
+        "Username": "admin",
+        "AuthenticationType": "Explicit – group",
+        "ServiceType": "",
+        "QueryOptions": "",
+        "Status": "Active",
+        "Credentials": "Yo0vdJUKxM2roDqkdERxbA=="
+    }
+     ]
+....
++
+Service registry options
+
+.Service registry options
+[width="100%",cols="30%,70%",]
+|===
+a|
+* *Property*
+
+a|
+* *Description*
+
+a|
+* ServiceName
+
+a|
+* Name of the service (Should be Unique).
+
+a|
+* ConnectionURL
+
+a|
+* Keycloak connection Url of the service.
+
+a|
+* Username
+
+a|
+* Name of the user. Provide the user name only if the
+`AuthenticationType` is `Explicit – group`
+
+a|
+* AuthenticationType
+
+a|
+* Authentication type of the data source. It can be `Explicit – group`,
+`Explicit – individual` and `Single Sign-on`.
+
+a|
+* ServiceType
+
+a|
+* Type of the data source. It can be like `DataServer`, `DSSearch`,
+`DS BPM Service` etc.
+
+a|
+* {blank}
+
+a|
+* {blank}
+
+a|
+____
+Status
+____
+
+a|
+* Active or InActive.
+
+a|
+* Credentials
+
+a|
+* Encrypt your password and update here. Please follow
+link:#encrypt-credentials[Encrypt Credentials]
+
+|===
+
+==== Import Configurations
+
+Run the following for importing configurations to DSIS Config Service.
+
+....
+ Open new command prompt window
+$ cd /Landmark/apps/dsadx
+$ node scripts-exec.js import-config –u <KEYCLOAK_ADMIN_USER_NAME> –p <KEYCLOAK_PASSWORD_IN_PLAINTEXT> –v
+....
+
+Fyi, each folder under `.``/configs/data` will be created as a
+collection in dsis-config. So each JSON file under
+`.``/configs/data/application/<directory>` will be created as
+configurations inside the collection.
+
+For example `.``/configs/data/application/``menuConfigurations` will be
+created as
+`<hostname>:<port>/dsis-config/api/v1/applications/<your_spa>/collections/menuConfigurations`.
+
+Similarly `./``appmenuConfig.json` will be created as configuration
+under menuConfigurations collection
+i.e.`<hostname>:<port>/dsis-config/api/v1/applications/<spa>/collections/menuConfigurations/configurations/appmenuConfig`.
+
+=== Configure PM2 services
+
+For the installation please refer:
+
+==== Windows
+
+[arabic]
+. Run the below command to install PM2 globally.
+
+____
+npm install pm2 –g
+____
+
+[arabic, start=2]
+. Run the below command to start pmr, it will create a .pm2 folder in
+your user folder.
+
+____
+cd c:\Landmark\apps\app_configurations
+
+pm2 start pm2.json
+____
+
+[arabic, start=3]
+. Run the below command. It will save the process list with the
+corresponding environment into a dump file will be used
+forexpected/unexpected server restart
+
+____
+pm2 save
+____
+
+===== Run PM2 as a Windows Service
+
+[arabic]
+. Run the below command to install pm2 as a windows service.
+
+____
+npm i pm2-windows-service –g
+____
+
+[arabic, start=2]
+. Now run the below command
+
+* `pm2-service-install -n PM2`
++
+....
+and set the following:
+....
++
+....
+? Perform environment setup (recommended)? Yes
+....
++
+....
+? Set PM2_HOME? Yes
+....
++
+....
+? PM2_HOME value (this path should be accessible to the service user and
+....
++
+....
+should not contain any “user-context” variables [e.g. %APPDATA%]): D:\Users\<user_name>\..pm2
+....
++
+....
+? Set PM2_SERVICE_SCRIPTS (the list of start-up scripts for pm2)? No
+....
++
+....
+? Set PM2_SERVICE_PM2_DIR (the location of the global pm2 to use with the service)? [recommended] Yes
+....
++
+....
+? Specify the directory containing the pm2 version to be used by the
+....
++
+....
+service C:\USERS\<USER>\APPDATA\ROAMING\NPM\node_modules\pm2\index.js
+....
++
+....
+PM2 service installed and started.
+....
++
+....
+This will create a Windows Service called PM2.
+....
+
+image:media/media/image17.png[pm2 service,width=560,height=300]
+
+....
+If incase service PM2 is not in running state, change the Startup type to Automatic and click on Start.
+....
+
+==== For Linux
+
+[arabic]
+. Run the below command to install PM2 globally.
+
+____
+npm install pm2 –g
+____
+
+[arabic, start=2]
+. Setp environment variable for pm2 location.
+
+____
+....
+export PATH="$PATH:/Landmark/nodejs/lib/node_modules/pm2/bin"
+....
+____
+
+[arabic, start=3]
+. Run the below command to start pm2, it will create a .pm2 folder in
+your user folder.
+
+____
+cd /Landmark/apps/app_configurations
+
+pm2 start pm2.json
+____
+
+[arabic, start=4]
+. Run the below command. It will save the process list with the
+corresponding environment into a dump file will be used
+forexpected/unexpected server restart
+
+____
+pm2 save
+____
+
+image:media/media/image18.png[pm2 start LINUX,width=560,height=175]
+
+===== Running PM2 as a service
+
+After running the code above, it is recommended that you setup PM2 as a
+service so that it can start when the server starts
+
+....
+sudo env PATH=$PATH:<directory location upto binaries(executables) from your node modules are located> <directory location upto binaries(executables) from your pm2 modules>/pm2 startup systemv -u <user-name> --hp /home/<user-name>, +
+
+Example:- sudo env PATH=$PATH:/Landmark/apps/nodejs/node-v6.10.3-linux-x64/bin/ /Landmark/apps/nodejs/node-v6.10.3-linux-x64/lib/node_modules/pm2/bin/pm2 startup systemv -u svcwf --hp /home/svcwf
+....
+
+image:media/media/image19.png[pm2 service Linux,width=560,height=371]
+
+===  +
+Install and Configure NGINX
+
+Webframework 6.x onwards app-host and app-router services are no longer
+supported for hosting SPA. Hence webframework recommends using NGINX to
+host your SPA.
+
+NGINX the SPAs can be deployed in two ways:
+
+==== Root Deployment
+
+The application is hosted directly at the root of a server, i.e. each
+SPA is either on its own sub-domain or on its own port. E.g.
+www.example.com, app.example.com, example.com:8085, etc. Your index.html
+should have <base href="/"> in this case.
+
+====  +
+Path Deployment
+
+The application is hosted at a path on a server. E.g.
+www.example.com/my-app. Your index.html should have <base
+href="/my-app/"> in this case.
+
+====  +
+Windows
+
+Download the NGINX zip file
+from http://nginx.org/en/download.html[here ]and extract it to a folder
+of choice, we recommend that you install it somewhere easily accessible
+such as C:\nginx. Refer http://nginx.org/en/docs/windows.html[here] for
+more details.
+
+==== CentOS
+
+____
+Run sudo yum install nginx in terminal.
+____
+
+==== Others
+
+____
+Follow the
+guide https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source[here].
+____
+
+==== Running nginx
+
+You can run nginx by typing the command nginx. In Windows, go to the
+folder where you have extracted the nginx before running the command.
+
+Note: In case of Linux server restarting ,user may face issue with
+running NGINX, it might give permission denied error on nginx pid.
+Follow below steps as workaround to resolve the same:
+
+* log in to the server
+* rm -f /var/run/nginx.pid
+* sudo chmod -R 777 /run
+
+Nginx can be managed using the following commands:
+
+[width="100%",cols="35%,65%",options="header",]
+|===
+a|
+==== Command
+
+a|
+==== Description
+
+a|
+==== nginx -s stop
+
+a|
+==== fast shutdown
+
+a|
+==== nginx -s quiet
+
+a|
+==== graceful shutdown
+
+a|
+==== nginx -s reload
+
+a|
+==== changing configuration, starting new worker processes with a new configuration, graceful shutdown of old worker processes
+
+a|
+==== nginx -s reopen
+
+a|
+==== re-opening log files
+
+|===
+
+==== Configuration
+
+For hosting the SPA, following configuration files are needs to be
+manually created other than nginx.conf file. For Windows, create the
+appropriate folders if necessary.
+
+[width="100%",cols="16%,29%,55%",options="header",]
+|===
+|File Name |Description |Location
+|nginx.conf |This is the root configuration file for NGINX. |Should be
+kept where NGINX can load it directly, i.e., for Windows, it should be
+the same folder, for Linux, it should be in /etc/nginx. The location of
+this file will be referred to as _<root configuration folder>_.
+
+|gzip.conf |This file contains the gzip configuration for compressing
+responses on the fly. |Must be kept in <root configuration
+folder>/conf.d/.
+
+|default.conf |This file contains the configurations for all the SPAs
+hosted over HTTP. |Must be kept in <root configuration folder>/conf.d/.
+
+|ssl.conf |This file contains the configurations for all the SPAs hosted
+over HTTPS. |Must be kept in <root configuration folder>/conf.d/.
+
+|app.http.conf app.https.conf |Each SPA will have its own
+app.http.conf/app.https.conf which will have app specific configuration.
+For HTTP deployment, the file must be named as <app-name>.http.conf,
+while for HTTPS, the file must be named as <app-name>.https.conf. |Must
+be kept in <root configuration folder>/conf.d/spa.d/.
+|===
+
+The following sections give an example of the content of the various
+configuration files.
+
+IMPORTANT: +
+Make sure you delete any extra configuration blocks you have in these
+files. Also, note the file paths in the examples below are for Linux.
+For Windows provide the appropriate paths and use / instead of \ in the
+path separator. E.g. c:/nginx/log.
+
+==== nginx.conf
+
+nginx.conf.
+
+* For more information on configuration, see:
+** Official English Documentation: 
+** http://nginx.org/en/docs/Official Russian
+Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+
+worker_processes auto;
+
+error_log /var/log/nginx/error.log;
+
+pid /var/run/nginx.pid;
+
+events \{
+
+worker_connections 1024;
+
+}
+
+http \{
+
+log_format main '$remote_addr - $remote_user [$time_local] "$request" '
+
+'$status $body_bytes_sent "$http_referer" '
+
+'"$http_user_agent" "$http_x_forwarded_for"';
+
+access_log /var/log/nginx/access.log main;
+
+sendfile on;
+
+tcp_nopush on;
+
+tcp_nodelay on;
+
+keepalive_timeout 65;
+
+types_hash_max_size 2048;
+
+include /etc/nginx/mime.types;
+
+default_type application/octet-stream;
+
+# Load modular configuration files from the /etc/nginx/conf.d directory.
+
+# See http://nginx.org/en/docs/ngx_core_module.html#include
+
+# for more information.
+
+include /etc/nginx/conf.d/*.conf;
+
+}
+
+[width="100%",cols="2%,98%",options="header",]
+|===
+| |Provide the path where error logs should be generated
+| |Provide the path where nginx master process ID is written
+| |Provide the path where access logs should be generated
+| |Path to mime.types file defining the supported MIME types
+| |Path to your conf.d folder where all the configurations will be kept
+|===
+
+==== gzip.conf
+
+NOTE:
+
+[width="100%",cols="1%,99%",options="header",]
+|===
+| |If you don’t see gzip.conf in conf.d directory, create the file
+gzip.conf under the path nginx_installed_root_path/conf.d/gzip.conf and
+update the file as mentioned below.
+|===
+
+gzip.conf.
+
+gzip on;
+
+gzip_disable "MSIE [1-6]\\.(?!.*SV1)";
+
+gzip_min_length 1100;
+
+gzip_proxied expired no-cache no-store private auth;
+
+gzip_comp_level 5;
+
+gzip_types text/plain text/css application/javascript
+application/x-javascript text/xml application/xml application/rss+xml
+text/javascript image/x-icon image/bmp image/svg+xml;
+
+gzip_vary on;
+
+==== Path Deployment
+
+NOTE:
+
+[width="100%",cols="1%,99%",options="header",]
+|===
+| |Create a directory called spa.d under your <nginx root
+directory>/conf.d directory if it does not exist already.
+|===
+
+==== Default.conf.
+
+server \{
+
+listen 80;
+
+listen [::]:80;
+
+server_name www.example.org;
+
+sendfile on;
+
+default_type application/octet-stream;
+
+root /srv/;
+
+include /etc/nginx/conf.d/spa.d/*.conf;
+
+}
+
+Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+
+This would be the root folder where all your SPAs are deployed. For
+single app using path deployment, set this.
+
+The absolute path to the SPAs' conf folder.
+
+==== ssl.conf.
+
+_#_
+
+_# HTTPS server configuration_
+
+_#_
+
+server \{
+
+listen 443 ssl http2;
+
+listen [::]:443 http2 ssl;
+
+server_name http://www.example.com[www.example.com];
+
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+ssl_session_cache shared:SSL:1m;
+
+ssl_session_timeout 10m;
+
+ssl_ciphers HIGH:!aNULL:!MD5;
+
+ssl_prefer_server_ciphers on;
+
+sendfile on;
+
+default_type application/octet-stream;
+
+root /srv/;
+
+include /etc/nginx/conf.d/spa.d/*.https.conf;
+
+}
+
+Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+
+path to SSL certificate. Refer appendix_title for creating self signed
+certificates.
+
+This would be the root folder where all your SPAs are deployed
+
+The absolute path to the SPAs' conf folder.
+
+==== app.http.conf/app.https.conf.
+
+location /my-app \{
+
+alias /srv/my-app-dist/;
+
+try_files $uri $uri/ /srv/my-app-dist/index.html;
+
+}
+
+location ~ ^/api|/applications \{
+
+proxy_pass http:_//127.0.0.1:2000;_
+
+}
+
+URL path where the app will be accessed from. This should match the href
+in index.html.
+
+Set alias to absolute path to SPA deployment folder. In case of single
+app using path deployment, remove this line.
+
+Path to index.html relative to the root set in default.conf/ssl.conf.
+
+port in which the webframework config service is running.
+
+Below is the list of webframework services used for Enterprise Search
+app. We have given this for easy user reference, please change hostname
+and port according to your environment. Also change http to https if you
+are services are running under ssl.
+
+location ~ ^/accessManagement
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8810;
+
+}
+
+location ~ ^/api/bpm
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3001;_
+
+}
+
+location ~ ^/applications
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8000;
+
+}
+
+location ~ ^/appRoleManagement
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8400;_
+
+}
+
+location ~ ^/clusterservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8777;
+
+}
+
+location ~ ^/customLogger
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:9500;_
+
+}
+
+location ~ ^/dataqueryservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:3004;
+
+}
+
+location ~ ^/datatransferservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8069;_
+
+}
+
+location ~ ^/js
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:4197;
+
+}
+
+location ~ ^/lea/leaProductsManagementService
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:4097;_
+
+}
+
+location ~ ^/uploadfiles/(.*) \{
+
+return 301 /assets/uploadfiles/$1;
+
+}
+
+location ~ ^/upload
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:4097;
+
+}
+
+location ~ ^/lea
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:4094;_
+
+}
+
+location ~ ^/api/securestore/
+
+\{
+
+proxy_http_version 1.1;
+
+rewrite ^/api/securestore/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:4094;_
+
+}
+
+location ~ ^/logViewer
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:4197;
+
+}
+
+location ~ ^/odataservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8515;_
+
+}
+
+location ~ ^/recallService
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8515;
+
+}
+
+location ~ ^/resource
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:4197;_
+
+}
+
+location ~ ^/rssviewerservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:7009;
+
+}
+
+location ~ ^/sc(.*)$
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3003;_
+
+}
+
+location ~ ^/api/shoppingcart(.*)$
+
+\{
+
+rewrite ^ $request_uri; # get original URI
+
+rewrite ^/api/shoppingcart(/.*) $1 break; # drop /api/shoppingcart, put
+/
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:3003$uri;
+
+}
+
+location ~ ^/searchservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3101;_
+
+}
+
+location ~ ^/serviceregistry
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:5000;
+
+}
+
+location ~ ^/gisMixedContent
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:9977;_
+
+}
+
+location ~ ^/securityManagement
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8002;
+
+}
+
+location ~ ^/api/securityManagement/(.*)$
+
+\{
+
+rewrite ^/api/securityManagement/(.*)$ /$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8002;_
+
+}
+
+location ~ ^/api/appRoleManagement/(.*)$
+
+\{
+
+proxy_http_version 1.1;
+
+rewrite ^/api/appRoleManagement/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:8400;_
+
+}
+
+location ~ ^/api/accessManagement/(.*)$
+
+\{
+
+proxy_http_version 1.1;
+
+rewrite ^/api/accessManagement/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:8810;_
+
+}
+
+location ~ ^/api/services/(.*)$
+
+\{
+
+rewrite ^/api/services/(.*)$ /services/$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:5000;_
+
+#proxy_pass https:_//distwf4.dawlmkscandev02.landmarksoftware.io;_
+
+#add_header X-debug-message "$uri" always;
+
+}
+
+location ~ ^/api/services
+
+\{
+
+rewrite ^/api/services(.*)$ /services/$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:5000;_
+
+#proxy_pass https:_//distwf4.dawlmkscandev02.landmarksoftware.io;_
+
+#add_header X-debug-message "$uri" always;
+
+}
+
+location ~ ^/api/user-config/(.*)$
+
+\{
+
+rewrite ^/api/user-config/(.*)$ /$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3560;_
+
+#add_header X-debug-message "$uri" always;
+
+}
+
+location ~ ^/api/rssviewer
+
+\{
+
+rewrite ^/api/rssviewer/(.*)$ /$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:7009;_
+
+}
+
+location ~ ^/api/dataquery/(.*)$
+
+\{
+
+rewrite ^/api/dataquery/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:3004;_
+
+}
+
+location ~ ^/api/search/(.*)$
+
+\{
+
+rewrite ^/api/search/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:3101;_
+
+}
+
+location ~ ^/supportassistantservice
+
+\{
+
+proxy_pass https://localhost:7005;
+
+}
+
+==== Root Deployment
+
+Copy the files and contents as mentioned
+in https://webframework.pages.openearth.community/documents/applications/enterprise-search/installation/#path-deployment[Path
+Deployment] and replace as per root deployment.
+
+==== default.conf.
+
+include /etc/nginx/conf.d/spa.d__/*.http.conf;__
+
+The absolute path to the SPAs' conf folder.
+
+==== ssl.conf.
+
+include /etc/nginx/conf.d/spa.d__/*.https.conf;__
+
+The absolute path to the SPAs' conf folder.
+
+==== app.http.conf.
+
+server \{
+
+location / \{
+
+try_files $uri $uri/ /index.html;
+
+}
+
+location ~ ^/api|/applications \{
+
+proxy_pass http://127.0.0.1:2000;
+
+}
+
+}
+
+port in which the webframework config service is running .
+
+==== app.https.conf.
+
+server \{
+
+listen 443 ssl http2;
+
+listen [::]:443 http2 ssl;
+
+server_name www.example.com;
+
+ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+
+ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+
+ssl_dhparam /etc/ssl/certs/dhparam.pem;
+
+ssl_session_cache shared:SSL:1m;
+
+ssl_session_timeout 10m;
+
+ssl_ciphers HIGH:!aNULL:!MD5;
+
+ssl_prefer_server_ciphers on;
+
+sendfile on;
+
+default_type application/octet-stream;
+
+root /srv/;
+
+location / \{
+
+try_files $uri $uri/ /index.html;
+
+}
+
+location ~ ^/api|/applications \{
+
+proxy_pass http://127.0.0.1:2000;
+
+}
+
+}
+
+Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+
+path to SSL certificate. Refer appendix_title for creating self signed
+certificates.
+
+This would be the root folder where all your SPAs are deployed
+
+Below is the list of webframework services used for Enterprise Search
+app. We have given this for easy user reference, please change hostname
+and port according to your environment. Also change http to https if you
+are services are running under ssl.
+
+location ~ ^/accessManagement
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8810;
+
+}
+
+location ~ ^/api/bpm
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3001;_
+
+}
+
+location ~ ^/applications
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8000;
+
+}
+
+location ~ ^/appRoleManagement
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8400;_
+
+}
+
+location ~ ^/clusterservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8777;
+
+}
+
+location ~ ^/customLogger
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:9500;_
+
+}
+
+location ~ ^/dataqueryservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:3004;
+
+}
+
+location ~ ^/datatransferservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8069;_
+
+}
+
+location ~ ^/js
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:4197;
+
+}
+
+location ~ ^/lea/leaProductsManagementService
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:4097;_
+
+}
+
+location ~ ^/uploadfiles/(.*) \{
+
+return 301 /assets/uploadfiles/$1;
+
+}
+
+location ~ ^/upload
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:4097;
+
+}
+
+location ~ ^/lea
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:4094;_
+
+}
+
+location ~ ^/api/securestore/
+
+\{
+
+proxy_http_version 1.1;
+
+rewrite ^/api/securestore/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:4094;_
+
+}
+
+location ~ ^/logViewer
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:4197;
+
+}
+
+location ~ ^/odataservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8515;_
+
+}
+
+location ~ ^/recallService
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:8515;
+
+}
+
+location ~ ^/resource
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:4197;_
+
+}
+
+location ~ ^/rssviewerservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:7009;
+
+}
+
+location ~ ^/sc(.*)$
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3003;_
+
+}
+
+location ~ ^/api/shoppingcart(.*)$
+
+\{
+
+rewrite ^ $request_uri; # get original URI
+
+rewrite ^/api/shoppingcart(/.*) $1 break; # drop /api/shoppingcart, put
+/
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:3003$uri;
+
+}
+
+location ~ ^/searchservice
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3101;_
+
+}
+
+location ~ ^/serviceregistry
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https://localhost:5000;
+
+}
+
+location ~ ^/securityManagement
+
+\{
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8002;_
+
+}
+
+location ~ ^/api/securityManagement/(.*)$
+
+\{
+
+rewrite ^/api/securityManagement/(.*)$ /$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:8002;_
+
+}
+
+location ~ ^/api/appRoleManagement/(.*)$
+
+\{
+
+proxy_http_version 1.1;
+
+rewrite ^/api/appRoleManagement/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:8400;_
+
+}
+
+location ~ ^/api/accessManagement/(.*)$
+
+\{
+
+proxy_http_version 1.1;
+
+rewrite ^/api/accessManagement/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:8810;_
+
+}
+
+location ~ ^/api/services/(.*)$
+
+\{
+
+rewrite ^/api/services/(.*)$ /services/$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:5000;_
+
+#proxy_pass https:_//distwf4.dawlmkscandev02.landmarksoftware.io;_
+
+#add_header X-debug-message "$uri" always;
+
+}
+
+location ~ ^/api/services
+
+\{
+
+rewrite ^/api/services(.*)$ /services/$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:5000;_
+
+#proxy_pass https:_//distwf4.dawlmkscandev02.landmarksoftware.io;_
+
+#add_header X-debug-message "$uri" always;
+
+}
+
+location ~ ^/api/user-config/(.*)$
+
+\{
+
+rewrite ^/api/user-config/(.*)$ /$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:3560;_
+
+#add_header X-debug-message "$uri" always;
+
+}
+
+location ~ ^/api/rssviewer
+
+\{
+
+rewrite ^/api/rssviewer/(.*)$ /$1 break;
+
+proxy_http_version 1.1;
+
+proxy_pass https:_//localhost:7009;_
+
+}
+
+location ~ ^/api/dataquery/(.*)$
+
+\{
+
+rewrite ^/api/dataquery/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:3004;_
+
+}
+
+location ~ ^/api/search/(.*)$
+
+\{
+
+rewrite ^/api/search/(.*)$ /$1 break;
+
+proxy_pass https:_//localhost:3101;_
+
+}
+
+location ~ ^/supportassistantservice
+
+\{
+
+proxy_pass https://localhost:7005;
+
+}
+
+=== Launch Application
+
+Type following in the browser address bar.
+
+`http``(S)``://<``router_ip``>:<``router_port``>/<``spa_id``>/`. You
+should be able to see a screen like below.
+
+Make sure that you do not have any CORS plugin installed. If so, please
+disable it before you browse to the application.
+
+image:media/media/image20.png[image,width=624,height=235]
+
+=== Enabling SSL (https) for Application
+
+Perform the steps from this section only if you want to configure SSL
+for the DSADX application. Otherwise skip this section to continue with
+HTTP configuration.
+
+==== Create p12 Certificate
+
+PKCS #12 (.p12) certificates will be used by this application for
+end-to-end encrypted communication. Admin have to store the generated
+PKCS #12 (.p12) certificates in a shared directory. DSADX Application
+should be able to access this shared folder and files under it.
+
+Login into the machine where you are installing the DSADX and execute
+the following command, replacing the parameters and names as specified
+in 1, 2, 3, and 4 below:
+
+____
+_keytool -genkey -alias <**ENV_NAME**> -keyalg RSA -keysize 2048
+-keypass changeit -storepass changeit -keystore *<ENV_NAME>*.p12
+-storetype PKCS12 -validity 10950 *-ext
+SAN=DNS:localhost,DNS:<FQDN>,IP:<HOST_IP>,IP:127.0.0.1*_
+____
+
+[arabic]
+. Change <ENV_NAME> to “dsadx”
+. Change “-ext SAN” parameter to replace <HOST_IP> with the host machine
+IP and <FQDN> with the Fully Qualified Domain Name; for example,
+foo.acme.com
+. “changeit” is the storepass /keypass password used in the above
+command, but admin can use any as a password.
+. Specify all the DNS names and/or IP addresses that will be allowed
+during hostname verification by adding new “IP:<HOST_IP>” or
+“DNS:<FQDN>” with alternate values for <HOST_IP> and <FQDN>
+
+____
+Ensure that the CN (first and last name / Common Name) value matches the
+fully qualified domain name of your web server
+
+What is your first and last name? +
+[Unknown]: *<FQDN>* +
+What is the name of your organizational unit? +
+[Unknown]: Foo +
+What is the name of your organization? +
+[Unknown]: acme corp +
+What is the name of your City or Locality? +
+[Unknown]: Duckburg +
+What is the name of your State or Province? +
+[Unknown]: Duckburg +
+What is the two-letter country code for this unit? +
+[Unknown]: WD +
+Is **CN**=<FQDN>, OU=Foo, O=acme corp, L=Duckburg, ST=Duckburg, C=WD
+correct? +
+[no]: yes
+____
+
+The above command will create a p12 certificate named *dsadx.p12* in the
+current folder.
+
+For more Information about the keytool command, refer:
+http://www.tutorialspoint.com/unix_commands/keytool.htm.
+
+==== Create environment variables
+
+[arabic]
+. Create an environment variable called WF_CERT and set its value to
+\{path_of_certificate}. If the path is D:\certificates\dsadx.p12, then
+the variable value would be D:\certificates\dsadx.p12.
+. Create an environment variable with key as WF_KEY and value as
+`{``value_of_storepass``}` in encrypted format. Refer
+link:#encrypt-credentials[Encrypt Credentials] for encrypting this key.
+
+____
+image:media/media/image21.png[add environment var
+key,width=393,height=439]
+____
+
+==== Update Config.json
+
+Navigate to the app_configurations folder, open the config.json file,
+and update all the services in serviceConfigurations as follows:
+
+* Under all serviceConfigurations, set the [isSSL] value to true for
+enabling HTTPS.
+* isRouterSSL: Set this to true
+* environment: Set to dev when using self-signed certificates, and set
+to prod when using certivicates issued by a valid issuing authority.
+
+Then, restart pm2 services. Make sure you have added https url also in
+Valid Redirect URIs in the keycloak application client (Refer page 6).
+
+=== Share Services across Multiple Applications
+
+Note: If this is the first application that you are installing in this
+machine, then you can ignore this whole Share services section.
+
+But If you have installed an application (eg: EnterpriseSearch/AdminApp)
+in this machine already, then follow the below steps to install DSADX
+and share existing web framework services across the applications.
+
+[arabic]
+. {blank}
++
+____
+Follow steps from link:#extract-files[Extract Files] section to extract
+SPA and Services tar files. Ignore web framework services tar.
+____
+. {blank}
++
+____
+Follow steps in link:#configure-ds-security-keycloak[Configure
+DESECURITY (Keycloak)] section to create client for application, create
+user service account and add roles. Ignore steps for create client for
+services.
+____
+. {blank}
++
+____
+Follow the steps mentioned in “link:#update-config.json[Update
+config.json]” file. (eg: /Landmark/apps/app-configurations)
+____
+. {blank}
++
+____
+Then search for “app-host” in this same file.
+____
+. {blank}
++
+____
+Add a new configuration as “app-host-1” as below for your application
+and provide details.
+____
+
+` ``	`\{
+
+____
+"serviceName": "app-host",
+
+"serviceRoute": "/BHDMApp*",
+
+"distPath": "C:/Landmark/apps/enterprise-search-spa/apps/dashboard",
+
+"ip": "127.0.0.1",
+
+"isSsl": false,
+
+"port": 3000,
+
+"enableLogging": false,
+
+"logLevel": "info",
+
+"logFileRotation": "daily"
+
+....
+    },
+....
+____
+
+....
+	{
+....
+
+____
+_"serviceName": "app-host-1",_
+
+_"serviceRoute": "/dsadx*",_
+
+_"distPath": "C:/Landmark/apps/dsadx/dashboard",_
+
+_"ip": "127.0.0.1",_
+
+_"isSsl": false,_
+
+_"port": 3002,_
+
+_"enableLogging": false,_
+
+_"logLevel": "info",_
+
+_"logFileRotation": "daily"_
+____
+
+....
+ 	   },
+....
+
+Fyi, new host configuration required for each application that needs to
+be served.
+
+[width="100%",cols="18%,82%",]
+|===
+|`serviceName` |This should be a unique string with the given similar
+format. It will referred as `appId` for further use.
+
+|`serviceRoute` |This is a Unique SPA_ID to identify multiple
+applications. Update the value of `@spa_id@` with your keycloak
+application clientID used for configuring SPA (refer
+link:#create-client-for-application[Create Client for Application]). Do
+not remove * from serviceRoute, just replace `@spa_id@` alone. For eg if
+`@spa_id@` is dsadx` then serviceRoute has to be “/`dsadx``*”`
+
+|`Port` |Should be unique port number. So provide any available port
+number.
+
+|`distPath` |Path where the SPA distribution folder is located. Update
+`@spa_deployment_dir@` with path where index.html file is located for
+the corresponsing SPA. E.g., C:/Landmark/dsadx/apps/dashboard`. Make
+sure folder path has forward slash (/) in the path for windows
+directory.
+|===
+
+[arabic, start=6]
+. Follow the steps mentioned in “link:#update-pm2.json[Update pm2.json]”
+file.
+. {blank}
++
+____
+Then, Search for` “``app_host``”` in the pm2.json file.
+____
+. {blank}
++
+____
+Add a new entry as “app_host_1”as below for your application and provide
+details.
+____
+
+____
+` `\{
+
+"name": "app_host",
+
+"watch": true,
+
+"script": "./dist/app.js",
+
+"args": [
+
+"app-host"
+
+],
+
+"cwd": "/Landmark/apps/web-framework-services/service-app-host"
+
+},
+____
+
+`	{`
+
+`      "name": "``app``_host_1",`
+
+`      "watch": true,`
+
+`      "script": "./``dist``/app.js",`
+
+`      "``args``": [`
+
+`        "``app``-host-1"`
+
+`      ],`
+
+`      "``cwd``": "/Landmark/apps/web-framework-services/service-app-host"`
+
+`    }`
+
+[width="100%",cols="8%,92%",]
+|===
+|`Name` |This should be a unique string, so provide name with the
+similar format.
+
+|`A``rgs` |This should be your service name id that you created in
+config.json file.
+
+| |
+
+|`cwd` |Path where the web framework services are extracted. Make sure
+folder path has forward slash(/) in the path in case of windows
+environment.
+|===
+
+[arabic, start=9]
+. Follow the steps from link:#update-keycloak.json[Update Index.html
+file] section.
+. Follow steps from link:#configure-.wfrc-file[Configure wfrc file].
+. Follow steps from link:#service-registry-configurations[Service
+Registry Configurations].
+. Follow steps from link:#import-configurations[Import Configurations]
+section.
+. Restart the PM2 services.
+
+Now you can access the apps sharing one common web-framework-services.
+The machine IP and Port shall be same, only the End Point URI would
+change with your app client id.
+
+....
+e.g.  and  and 
+....
+
+=== Installing and Configuring NGINX
+
+Web Framework recommends using NGINX to host your application SPA but it
+is not mandatory, you can ignore this whole section if you do not wish
+to have NGINX.
+
+The SPAs can be deployed in two ways with NGINX:
+
+==== Root Deployment
+
+The application is hosted directly at the root of a server, i.e. each
+SPA is either on its own sub-domain or on its own port. E.g.
+_www.example.com_, _app.example.com_, _example.com:8085_, etc. Your
+`index.html` should have `<base ``href``="/">` in this case.
+
+==== Path Deployment
+
+The application is hosted at a path on a server. E.g.
+_www.example.com/my-app_. Your `index.html` should have
+`<base ``href``="/my-app/">` in this case.
+
+==== Installation
+
+Windows::
+  Download the NGINX zip file from
+  http://nginx.org/en/download.html[here] and extract it to a folder of
+  choice, we recommend that you install it somewhere easily accessible
+  such as `C:\nginx`. Refer http://nginx.org/en/docs/windows.html[here]
+  for more details.
+CentOS::
+  Run `sudo`` yum install ``nginx` in terminal.
+Others::
+  Follow the guide
+  https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source[here].
+
+==== Running ngix
+
+You can run nginx by typing the command `nginx`. In Windows, go to the
+folder where you have extracted the nginx before running the command.
+
+Nginx can be managed using the following commands:
+
+[width="100%",cols="17%,83%",options="header",]
+|===
+|Command |Description
+|nginx -s stop |fast shutdown
+
+|nginx -s quit |graceful shutdown
+
+|nginx -s reload |changing configuration, starting new worker processes
+with a new configuration, graceful shutdown of old worker processes
+
+|nginx -s reopen |re-opening log files
+|===
+
+==== Configuration
+
+For hosting the SPA, following configuration files are needed. For
+Windows, create the appropriate folders if necessary.
+
+[width="100%",cols="19%,43%,38%",options="header",]
+|===
+|File Name |Description |Location
+|nginx.conf |This is the root configuration file for NGINX. |Should be
+kept where NGINX can load it directly, i.e., for *Windows*, it should be
+the same folder, for *Linux*, it should be in `/``etc``/``nginx`. The
+location of this file will be referred to as _<root configuration
+folder>_.
+
+|gzip.conf |This file contains the gzip configuration for compressing
+responses on the fly. |Must be kept in
+`<root configuration folder>/``conf.d``/`.
+
+|default.conf |This file contains the configurations for all the SPAs
+hosted over HTTP. |Must be kept in
+`<root configuration folder>/``conf.d``/`.
+
+|ssl.conf |This file contains the configurations for all the SPAs hosted
+over HTTPS. |Must be kept in `<root configuration folder>/``conf.d``/`.
+
+|app.http.conf app.https.conf |Each SPA will have its own
+app.http.conf/app.https.conf which will have app specific configuration.
+For HTTP deployment, the file must be named as
+`<app-name``>.``http``.conf`, while for HTTPS, the file must be named as
+`<app-name>.``https.conf`. |Must be kept in
+`<root configuration folder>/``conf.d``/``spa.d``/`.
+|===
+
+The following sections give an example of the content of the various
+configuration files.
+
+Make sure you delete any extra configuration blocks you have in these
+files. Also, note the the file paths in the examples below are for
+Linux. For Windows provide the appropriate paths and use `/` instead of
+`\` in the path separator. E.g. `c:/nginx/log`.
+
+===== nginx.conf
+
+*nginx.conf.*
+
+....
+# For more information on configuration, see:
+#   * Official English Documentation: http://nginx.org/en/docs/
+#   * Official Russian Documentation: http://nginx.org/ru/docs/
+
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log; 
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main; 
+
+    sendfile            on;
+    tcp_nopush          on;
+    tcp_nodelay         on;
+    keepalive_timeout   65;
+    types_hash_max_size 2048;
+
+    include             /etc/nginx/mime.types; 
+    default_type        application/octet-stream;
+
+    # Load modular configuration files from the /etc/nginx/conf.d directory.
+    # See http://nginx.org/en/docs/ngx_core_module.html#include
+    # for more information.
+    include /etc/nginx/conf.d/*.conf; 
+}
+....
+
+* Provide the path where error logs should be generated
+* Provide the path where access logs should be generated
+* Path to `mime.types` file defining the supported MIME types
+* Path to your `conf.d` folder where all the configurations will be kept
+
+===== gzip.conf
+
+*gzip.conf.*
+
+....
+gzip on;
+gzip_disable "MSIE [1-6]\\.(?!.*SV1)";
+gzip_min_length 1100;
+gzip_proxied expired no-cache no-store private auth;
+gzip_comp_level 5;
+gzip_types text/plain text/css application/javascript application/x-javascript text/xml application/xml application/rss+xml text/javascript image/x-icon image/bmp image/svg+xml;
+gzip_vary on;
+....
+
+===== Path Deployment
+
+*default.conf.*
+
+....
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name  www.example.org; 
+
+    sendfile on;
+    default_type application/octet-stream;
+
+    root         /srv/; 
+
+    include /etc/nginx/conf.d/spa.d/*.conf;  
+}
+....
+
+* Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+* This would be the root folder where all your SPAs are deployed.
+* The absolute path to the SPAs' conf folder.
+
+*ssl.conf.*
+
+....
+#
+# HTTPS server configuration
+#
+
+server {
+    listen       443 ssl http2;
+    listen       [::]:443 http2 ssl;
+    server_name  www.example.com; 
+
+    ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt; 
+    ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key; 
+    ssl_dhparam /etc/ssl/certs/dhparam.pem; 
+    ssl_session_cache shared:SSL:1m;
+    ssl_session_timeout  10m;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    sendfile on;
+    default_type application/octet-stream;
+
+    root         /srv/; 
+
+    include /etc/nginx/conf.d/spa.d/*.https.conf; 
+}
+....
+
+* Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+* path to SSL certificate. Refer
+link:#creating-self-signed-ssl-certificate-for-nginx[appendix_title] for
+creating self signed certificates.
+* This would be the root folder where all your SPAs are deployed
+* The absolute path to the SPAs' conf folder.
+
+*app.http.conf/app.https.conf.*
+
+....
+location /my-app { 
+  alias /srv/my-app-dist/; 
+  try_files $uri $uri/ /srv/my-app-dist/index.html; 
+}
+
+location ~ ^/api|/applications { 
+  proxy_pass http://127.0.0.1:2000; 
+}
+....
+
+* URL path where the app will be accessed from. This should match the
+`href` in `index.html`.
+* Set `alias` to absolute path to SPA deployment folder.
+* Path to `index.html` *relative* to the `root` set in
+`default.conf`/`ssl.conf`.
+* List of service endpoints separated by `|`. For Getting Started, set
+this to
+`^/``api``|/applications|/lea|/``uploadfiles``|/``appRoleManagement`.
+* Path to the webframework reverse proxy service.
+
+===== Root Deployment
+
+*default.conf.*
+
+....
+include /etc/nginx/conf.d/spa.d/*.http.conf;  
+....
+
+* The absolute path to the SPAs' conf folder
+
+*ssl.conf.*
+
+....
+include /etc/nginx/conf.d/spa.d/*.https.conf; 
+....
+
+* The absolute path to the SPAs' conf folder.
+
+*app.http.conf.*
+
+....
+server {
+  listen       8080; 
+  listen       [::]:8080; 
+  server_name  www.example.org; 
+
+  sendfile on;
+  default_type application/octet-stream;
+
+  root         /srv/my-app-dist/; 
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  location ~ ^/api|/applications { 
+    proxy_pass http://127.0.0.1:2000; 
+  }
+}
+....
+
+* The port for your SPA
+* Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+* Absolute path to SPA deployment folder
+* List of service endpoints separated by `|`. For Getting Started, set
+this to
+`^/``api``|/applications|/lea|/``uploadfiles``|/``appRoleManagement`.
+* Path to the webframework reverse proxy service.
+
+*app.https.conf.*
+
+....
+server {
+  listen       443 ssl http2; 
+  listen       [::]:443 http2 ssl;
+  server_name  www.example.com; 
+
+  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt; 
+  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key; 
+  ssl_dhparam /etc/ssl/certs/dhparam.pem; 
+  ssl_session_cache shared:SSL:1m;
+  ssl_session_timeout  10m;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+  ssl_prefer_server_ciphers on;
+
+  sendfile on;
+  default_type application/octet-stream;
+
+  root         /srv/my-app-dist/; 
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  location ~ ^/api|/applications { 
+    proxy_pass http://127.0.0.1:2000; 
+  }
+}
+....
+
+* The port for your SPA
+* Server names determine which server block is used for a given request.
+They may be defined using exact names, wildcard names, or regular
+expressions.
+* path to SSL certificate. Refer
+link:#creating-self-signed-ssl-certificate-for-nginx[appendix_title] for
+creating self signed certificates.
+* Absolute path to SPA deployment folder
+* List of service endpoints separated by `|`. For Getting Started, set
+this to
+`^/``api``|/applications|/lea|/``uploadfiles``|/``appRoleManagement`.
+* Path to the webframework reverse proxy service.
+
+=== Trouble Shooting
+
+Below are known issues with getting-started app:
+
+==== Support Assistant Configurations
+
+This section helps you to add or update the support assistant
+configurations required for enabling live chat and customer support
+details.
+
+[arabic]
+. Update the values of `defaultToEmailAddress`
+,`defaultFromEmailAddress`,`customerSupportLiveChatURL`,`customerSupportPortalURL`,`createCaseURL`
+as per your environment of below json and copy the json:
+
+* {blank}
++
+....
+ {
+            "supportassistantserviceUrl": "/supportassistantservice/",
+            "emailServiceURL": "/emailservice/",
+            "defaultToEmailAddress": "supportassistant@halliburton.com",
+            "defaultFromEmailAddress": "supportassistant@halliburton.com",
+            "customLoggerEnabled": false,
+            "customerSupportLiveChatURL":"https://www.ienergy.community/Chat",
+            "customerSupportPortalURL"  :"https://www.ienergy.community/Support",
+            "createCaseURL": "http://css.lgc.com/psp/crmp/CUSTOMER/CRM/c/RC_SELF_SERVICE.RC_CASE_SW_SS_RPT.GBL?PAGE=RC_CASE_SW_SS_RPT&BUSINESS_UNIT=LGC01&DISP_TMPL_ID=RC_SUPPORT"
+        }
+....
++
+Support Assistant Service/Component Details
+
+[width="100%",cols="41%,59%",]
+|===
+a|
+* *Property*
+
+a|
+* *Description*
+
+a|
+* defaultFromEmailAddress
+
+a|
+* This will be used as sender address for sending emails.
+
+a|
+* defaultToEmailAddress
+
+a|
+* List of users to send the support email.
+
+a|
+* customerSupportLiveChatURL
+
+a|
+* Live chat support url.
+
+a|
+* customerSupportPortalURL
+
+a|
+* Customer Support portal url.
+
+a|
+* createCaseURL
+
+a|
+* Url for submitting a People Soft ticket.
+
+|===
+
+==== Email Service Configurations
+
+This section helps you to add or update the email service configurations
+required for product access request approval workflow.
+
+[arabic]
+. Update the values of `host` ,`port`,`isProtected` as per your
+environment of below json and copy the json:
+
+* {blank}
++
+....
+{
+    "host": "whsmtp.corp.halliburton.com",
+    "port": "25",
+    "isProtected": false,
+    "userName": "AKIAJZVSBK3UCWQZVNHQ",
+    "password": "Ag2YgykzL42jKHy1WimBUoemYdbs2VcxLPCw0/2VD3SA",
+    "customLoggerEnabled": false,
+    "exceptionLoggerEnabled": true,
+    "landmarkssservice": "/lea/landmarkssservice"
+}
+....
++
+SMTP server details for email service setup
+
+[width="100%",cols="20%,80%",]
+|===
+a|
+* *Property*
+
+a|
+* *Description*
+
+a|
+* host
+
+a|
+* FQDN or public IP of server wher SMTP service is running.
+
+a|
+* port
+
+a|
+* Port of SMTP service.
+
+a|
+* isProtected
+
+a|
+* Whether SMTP service is secured or not, if secured then provide
+username and password as well.
+
+a|
+* userName
+
+a|
+* User name.
+
+a|
+* password
+
+a|
+* Password.
+
+|===
+
+==== Keycloak Token Settings
+
+[arabic]
+. Login into to keycloak server URL.
+. Select the realm DecisionSpace_Integration_Server from realm list.
+. In the realm settings, select the Tokens tab.
+. Change values of the following time out settings below:
+
+[width="100%",cols="74%,26%",]
+|===
+a|
+* *SSO Session Idle*
+
+a|
+* 3 hours
+
+a|
+* *SSO Session Max*
+
+a|
+* 6 hours
+
+a|
+* *Access Token Lifespan*
+
+a|
+* 30 minutes
+
+a|
+* *Access Token Lifespan For Implicit Flow*
+
+a|
+* 3 hours
+
+a|
+* *Client Login Timeout*
+
+a|
+* 10 minutes
+
+a|
+* *Login Timeout*
+
+a|
+* 5 minutes
+
+|===
+
+* image:media/media/image22.png[set timeout token,width=617,height=524]
+
+==== Creating Self-Signed SSL Certificate for Nginx
+
+TLS/SSL works by using a combination of a public certificate and a
+private key. The SSL key is kept secret on the server. It is used to
+encrypt content sent to clients. The SSL certificate is publicly shared
+with anyone requesting the content. It can be used to decrypt the
+content signed by the associated SSL key. In this guide, we will show
+you how to set up a self-signed SSL certificate for use with an Nginx
+web server.
+
+===== Configure Nginx to Use SSL
+
+The default Nginx configuration in CentOS is fairly unstructured, with
+the default HTTP server block living within the main configuration file.
+Nginx will check for files ending in .conf in the
+`/``etc``/``nginx``/``conf.d` directory for additional configuration.
+
+We will create a new file in this directory to configure a server block
+that serves content using the certificate files we generated. We can
+then optionally configure the default server block to redirect HTTP
+requests to HTTPS.
+
+===== Create the TLS/SSL Server Block
+
+Create and open a file called `ssl.conf` in the
+`/``etc``/``nginx``/``conf.d` directory:
+
+....
+$ sudo vi /etc/nginx/conf.d/ssl.conf
+....
+
+Inside, begin by opening a `server` block. By default, TLS/SSL
+connections use port 443, so that should be our `listen` port. The
+`server_name` should be set to the server’s domain name or IP address
+that you used as the Common Name when generating your certificate. Next,
+use the `ssl_certificate`, `ssl_certificate_key`, and `ssl_dhparam`
+directives to set the location of the SSL files we generated:
+
+*/etc/nginx/conf.d/ssl.conf.*
+
+....
+server {
+  listen 443 http2 ssl;
+  listen [::]:443 http2 ssl;
+
+  server_name server_IP_address;
+
+  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+  ssl_dhparam /etc/ssl/certs/dhparam.pem;
+}
+....
+
+===== CLI Tools
+
+....
+Below are some extra CLI Tools. For setting up admin-app these are not required and can be skipped. Please continue with DecisionSpace Web Framework Services
+Export Configurations
+Run the following command in the extracted <enterprise-search-spa> folder for exporting configurations from DSIS Config Service.
+....
+
+$ node scripts-exec.js export-config
+
+....
+Encrypt Credentials
+Run the following command in the extracted "script" folder for encrypting password/text.
+....
+
+$ node scripts-exec.js encrypt <plainText>
+
+....
+Execute the above command with the plaintext you wish to encrypt. For example, if you enter plaintext as admin, you will get the value of encrypted text as
+tWwQNa+1VCfd45CT941RCg
+
+Decrypt Credentials
+....
+
+$ node scripts-exec.js decrypt <encryptedText>
+
+....
+Execute the above command with the encryptedText you wish to decrypt. For example, if you enter encryptedText as tWwQNa+1VCfd45CT941RCg==, you will get the value of plain text as ‘admin’
+....
+
+===== Keycloak Token Settings
+
+....
+....
+
+[arabic]
+. Login to keycloak server URL
+. Select the realm DecisionSpace_Integration_Server from realm list
+. In the realm settings, select the Tokens tab
+. Change values of the following time out settings below:
+
+[width="100%",cols="67%,33%",options="header",]
+|===
+|SSO session Idle |3 hours
+|SSO session Max |6 hours
+|Access token Lifespan |30 minutes
+|Client Login Timeout |10 minutes
+|Login Timeout |10 minutes
+|===
+
+....
+....
